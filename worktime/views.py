@@ -89,7 +89,7 @@ def upload_file(request):
                 normal_working_hours=calculate_normal_working_hours(arrived_time, departure_time, gregorian_date),
                 overtime_evening=calculate_overtime_evening(arrived_time, departure_time, gregorian_date),
                 work_nights=calculate_night_work1(arrived_time, departure_time),
-                work_deduction_morning=calculate_deduction_morning(arrived_time, departure_time),
+                work_deduction_morning=calculate_deduction_morning(arrived_time, departure_time, gregorian_date),
                 work_deduction_evening=calculate_deduction_evening(arrived_time, departure_time, gregorian_date),
             )
             record.save()

@@ -5,11 +5,19 @@ from datetime import datetime, time
 from django_jalali.db import models as jmodels
 from jalali_date import datetime2jalali, date2jalali
 import jdatetime
+from django.contrib.auth.models import User
+
+def user_str(self):
+    return f"{self.first_name} {self.last_name} ({self.username})"
+
+User.add_to_class("__str__", user_str)
 
 # Assuming LIST_ANSWER and status choices are defined elsewhere as mentioned
 ABSENT = 'A'
 PRESENT = 'P'
-LIST_ANSWER = [(ABSENT, 'Absent'), (PRESENT, 'Present')]
+OFF = 'O'
+MISSION = 'M'
+LIST_ANSWER = [(ABSENT, 'غایت'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت')]
 
 class WorkRecord(models.Model):
     person = models.CharField(max_length=100)
@@ -65,6 +73,7 @@ class WorkRecordFinally(models.Model):
     person = models.CharField(max_length=100)
     date = models.DateField(null=True)
     date_persian = jmodels.jDateField(blank=True, null=True)
+    weekday_name = models.CharField(max_length=15, blank=True, null=True)
     normal_working_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
     normal_working_hours_formatted = models.CharField(max_length=10, blank=True, null=True)
     over_time = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
@@ -93,6 +102,7 @@ class WorkRecordFinally(models.Model):
         hours_absent = int(self.absent_overtime)
         minutes_absent = int((self.absent_overtime - hours_absent) * 60 )
         self.date_persian = date2jalali(self.date)
+        self.weekday_name = datetime.strftime(self.date, '%A')
         self.over_time_formatted = '{:02d}:{:02d}'.format(hours_over, minutes_over)
         self.work_night_formatted = '{:02d}:{:02d}'.format(hours_night, minutes_night)
         self.work_deduction_formatted = '{:02d}:{:02d}'.format(hours_deduction, minutes_deduction)
@@ -105,6 +115,51 @@ class WorkRecordFinally(models.Model):
 
     class Meta:
         ordering = ['date', 'person']
+
+
+class WorkRecordDaily(models.Model):
+    person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="کارمند")
+    date_work = jmodels.jDateField(verbose_name="تاریخ")  # Changed from CharField to DateField for proper date handling
+    arrived_time = models.TimeField(null=True, blank=True, verbose_name='ساعت ورود')
+    departure_time = models.TimeField(null=True, blank=True, verbose_name='ساعت خروج')
+    status = models.CharField(max_length=10, choices=LIST_ANSWER, default=PRESENT, verbose_name='وضعیت روزانه کارمند')
+
+    def save(self, *args, **kwargs):
+        self._calculate_status()
+        super().save(*args, **kwargs)
+
+
+    def _calculate_status(self):
+        """Calculate the employee's presence status based on arrival and departure times."""
+        if self.arrived_time is not None and self.departure_time is not None:
+            # تبدیل تاریخ شمسی به میلادی
+            gregorian_date = self.date_work.togregorian()
+
+            arrived_dt = datetime.combine(gregorian_date, self.arrived_time)
+            departure_dt = datetime.combine(gregorian_date, self.departure_time)
+            total_hours = (departure_dt - arrived_dt).total_seconds() / 3600
+
+            # Set status to absent if arriving after 12 noon or working less than the required hours
+            noon_time = time(12, 0)
+            if self.arrived_time > noon_time or total_hours < 5:
+                self.status = ABSENT
+            else:
+                self.status = PRESENT
+        else:
+            self.status = ABSENT
+
+
+    class Meta:
+        ordering = ['date_work', 'person']
+        verbose_name = 'ثبت کارکرد روزانه'
+        verbose_name_plural = 'ثبت کارکرد های روزانه'
+
+    def __str__(self):
+        return f"{self.person} on {self.date_work}"
+    
+    def get_date(self):
+        return self.date_work.strftime('%Y/%m/%d')
+    get_date.short_description="تاریخ"
 
 
 

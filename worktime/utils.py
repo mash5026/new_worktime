@@ -6,6 +6,34 @@ ABSENT = 'A'
 PRESENT = 'P'
 LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر')]
 
+def calculate_time_overlap_normal(start_time, end_time, period_start, period_end):
+    """
+    Calculate overlap between two time periods.
+    """
+    start_dt = datetime.combine(datetime.today(), start_time)
+    end_dt = datetime.combine(datetime.today(), end_time)
+    period_start_dt = datetime.combine(datetime.today(), period_start)
+    period_end_dt = datetime.combine(datetime.today(), period_end)
+
+    # If the times are in the next day
+    if end_time < start_time:
+        end_dt += timedelta(days=1)
+    if period_end < period_start:
+        period_end_dt += timedelta(days=1)
+    
+    delta_real = end_dt - start_dt
+
+
+    latest_start = max(start_dt, period_start_dt)
+    earliest_end = min(end_dt, period_end_dt)
+    delta = (earliest_end - latest_start).total_seconds()
+    if delta > 0 and delta_real.total_seconds() < 9*3600:
+        return max(delta / 3600, 0)
+    elif delta_real.total_seconds() >= 9*3600:
+        return delta_real.total_seconds() / 3600
+    else:
+        return None
+    
 def calculate_time_overlap(start_time, end_time, period_start, period_end):
     """
     Calculate overlap between two time periods.
@@ -56,7 +84,7 @@ def calculate_normal_working_hours(arrived_time, departure_time, gregorian_date)
     else:
         deduction_time = time(17, 0)  # end time at 17:00 on rest of the days
 
-    return calculate_time_overlap(arrived_time, departure_time, time(8, 0), deduction_time)
+    return calculate_time_overlap_normal(arrived_time, departure_time, time(8, 0), deduction_time)
 
 def calculate_overtime_evening(arrived_time, departure_time, gregorian_date):
     """
@@ -69,12 +97,15 @@ def calculate_overtime_evening(arrived_time, departure_time, gregorian_date):
         
     return calculate_time_overlap(arrived_time, departure_time, deduction_time, time(22, 0))
 
-def calculate_deduction_morning(arrived_time, departure_time):
+def calculate_deduction_morning(arrived_time, departure_time, gregorian_date):
     """
     Calculate deduction for late arrival between 8:00 to 8:30 if working less than 9 hours.
     """
     total_hours = (datetime.combine(datetime.today(), departure_time) - datetime.combine(datetime.today(), arrived_time)).total_seconds() / 3600
-    if (time(8, 0) <= arrived_time <= time(8, 30) and total_hours < 9) or (time(8, 30) <= arrived_time <= time(12, 0)):
+
+    if gregorian_date.weekday() == 3 or gregorian_date.weekday() == 4:
+        return 0
+    elif (time(8, 0) <= arrived_time <= time(8, 30) and total_hours < 9) or (time(8, 30) <= arrived_time <= time(12, 0)):
         return (datetime.combine(datetime.today(), arrived_time) - datetime.combine(datetime.today(), time(8, 0))).total_seconds() / 3600
     else:
         return 0
@@ -82,18 +113,18 @@ def calculate_deduction_morning(arrived_time, departure_time):
 def calculate_deduction_evening(arrived_time, departure_time, gregorian_date):
     """
     Calculate deduction for leaving before 17:00.
-    """
-    
+    """    
     if gregorian_date.weekday() == 2: # Check if today is Wednesday
         deduction_time = time(16, 0)  # Deduction time at 16:00 on Wednesday
     else:
         deduction_time = time(17, 0)  # Deduction time at 17:00 on rest of the days
-
-    if departure_time < deduction_time:
+        
+    if gregorian_date.weekday() == 3 or gregorian_date.weekday() == 4:
+        return 0
+    elif departure_time < deduction_time:
         return (datetime.combine(datetime.today(), deduction_time) - datetime.combine(datetime.today(), departure_time)).total_seconds() / 3600
     else:
-        return 0
-    
+        return 0    
 
 
 

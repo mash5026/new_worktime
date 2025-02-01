@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-bp$0%)#x&=ewpp4c6p=3#!gqn%@+t&b^+&fp@y&-$yx0%o^ka&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['10.2.1.139', 'localhost', '127.0.0.1', '172.27.0.1']
+
 
 
 # Application definition
@@ -35,11 +37,16 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     #my_app
     'worktime',
+    'persons',
     #third_party_app
-    'explorer',
+    'iranian_cities',
+    'compressor',
+    #'explorer',
     "admin_interface",
     "colorfield",
     'import_export',
+    'django_jalali',
+    'jalali_date',
     #default_app
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'persons.middleware.CurrentUserMiddleware',
 ]
 
 ROOT_URLCONF = 'worktimeapp.urls'
@@ -113,19 +121,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fa'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_L10N = True
+
+USE_TZ = False
+
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
+
 STATICFILES_DIRS = [
     BASE_DIR / "worktime" / "static",
 ]
@@ -148,3 +160,36 @@ EXPLORER_CONNECTIONS = { 'Default': 'default' }
 EXPLORER_DEFAULT_CONNECTION = 'default'
 
 IMPORT_EXPORT_FORMATS = [XLSX, CSV, JSON, YAML, HTML]
+
+
+JALALI_SETTINGS = {
+    # JavaScript static files for the admin Jalali date widget
+    "ADMIN_JS_STATIC_FILES": [
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery-1.10.2.min.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.core.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/calendar.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc-fa.js",
+        "admin/main.js",
+    ],
+    # CSS static files for the admin Jalali date widget
+    "ADMIN_CSS_STATIC_FILES": {
+        "all": [
+            "admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css",
+            "admin/css/main.css",
+        ]
+    },
+}
+
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+]
+
+
+IRANIAN_CITIES_ADMIN_ADD_READONLY_ENABLED = True
+IRANIAN_CITIES_ADMIN_DELETE_READONLY_ENABLED = True
+IRANIAN_CITIES_ADMIN_CHANGE_READONLY_ENABLED = True
+IRANIAN_CITIES_ADMIN_INLINE_ENABLED = False
