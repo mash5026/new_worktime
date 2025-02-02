@@ -52,102 +52,102 @@ class TimeStampedModel(models.Model):
 
 class Personnel(TimeStampedModel):
     EDUCATION_LEVEL_CHOICES = [
-        ('cycle', 'سیکل'),
-        ('diploma', 'دیپلم'),
-        ('associate', 'فوق دیپلم'),
-        ('bachelor', 'کارشناسی'),
-        ('master', 'کارشناسی ارشد'),
-        ('doctorate', 'دکترا'),
-        ('postdoctorate', 'فوق دکترا'),
-        ('seminary', 'مدارک حوزوی'),
+        ('سیکل', 'سیکل'),
+        ('دیپلم', 'دیپلم'),
+        ('فوق دیپلم', 'فوق دیپلم'),
+        ('کارشناسی', 'کارشناسی'),
+        ('کارشناسی ارشد', 'کارشناسی ارشد'),
+        ('دکترا', 'دکترا'),
+        ('فوق دکترا', 'فوق دکترا'),
+        ('مدارک حوزوی', 'مدارک حوزوی'),
     ]
 
     HOME_OWNERSHIP_CHOICES = [
-        ('owner', 'مالک'),
-        ('renter', 'مستاجر'),
-        ('family_home', 'خانه پدری'),
+        ('مالک', 'مالک'),
+        ('مستاجر', 'مستاجر'),
+        ('خانه پدری', 'خانه پدری'),
     ]
 
     NATIONALITY_CHOICES = [
-        ('iranian', 'ایرانی'),
-        ('foreign', 'غیر ایرانی'),
+        ('ایرانی', 'ایرانی'),
+        ('غیر ایرانی', 'غیر ایرانی'),
     ]
 
     RELIGION_CHOICES = [
-        ('islam', 'اسلام'),
-        ('christianity', 'مسیحیت'),
-        ('zoroastrianism', 'زرتشت'),
-        ('judaism', 'یهودیت'),
-        ('other', 'سایر'),
+        ('اسلام', 'اسلام'),
+        ('مسیحیت', 'مسیحیت'),
+        ('زرتشت', 'زرتشت'),
+        ('یهودیت', 'یهودیت'),
+        ('سایر', 'سایر'),
     ]
 
     SECT_CHOICES = [
-        ('sunni', 'سنتی'),
-        ('shia', 'شیعه'),
+        ('سنتی', 'سنتی'),
+        ('شیعه', 'شیعه'),
     ]
 
     MARITAL_STATUS_CHOICES = [
-        ('single', 'مجرد'),
-        ('married', 'متاهل'),
-        ('other', 'سایر'),
+        ('مجرد', 'مجرد'),
+        ('متاهل', 'متاهل'),
+        ('سایر', 'سایر'),
     ]
 
     MILITARY_SERVICE_CHOICES = [
-        ('done', 'انجام شده'),
-        ('not_done', 'انجام نشده'),
-        ('medical_exemption', 'معافیت پزشکی'),
-        ('non_medical_exemption', 'معافیت غیرپزشکی'),
-        ('in_progress', 'در حال انجام'),
-        ('other', 'سایر'),
+        ('انجام شده', 'انجام شده'),
+        ('انجام نشده', 'انجام نشده'),
+        ('معافیت پزشکی', 'معافیت پزشکی'),
+        ('معافیت غیرپزشکی', 'معافیت غیرپزشکی'),
+        ('در حال انجام', 'در حال انجام'),
+        ('سایر', 'سایر'),
     ]
 
     HAIR_COLOR_CHOICES = [
-        ('brown', 'قهوه ای'),
-        ('black', 'مشکی'),
-        ('white', 'سفید'),
-        ('blonde', 'بلوند'),
-        ('other', 'سایر'),
+        ('قهوه ای', 'قهوه ای'),
+        ('مشکی', 'مشکی'),
+        ('سفید', 'سفید'),
+        ('بلوند', 'بلوند'),
+        ('سایر', 'سایر'),
     ]
 
     JOB_TITLE_CHOICES = [
-        ('expert', 'کارشناس'),
-        ('senior_expert', 'کارشناس ارشد'),
-        ('chief', 'رئیس'),
-        ('deputy', 'معاون'),
-        ('manager', 'مدیر'),
-        ('ceo', 'مدیرعامل'),
-        ('janitor', 'آبدارچی'),
-        ('guard', 'نگهبان'),
-        ('driver', 'راننده'),
-        ('office_manager', 'مسئول دفتر'),
-        ('intern', 'کارآموز'),
+        ('کارشناس', 'کارشناس'),
+        ('کارشناس ارشد', 'کارشناس ارشد'),
+        ('رئیس', 'رئیس'),
+        ('معاون', 'معاون'),
+        ('مدیر', 'مدیر'),
+        ('مدیرعامل', 'مدیرعامل'),
+        ('آبدارچی', 'آبدارچی'),
+        ('نگهبان', 'نگهبان'),
+        ('راننده', 'راننده'),
+        ('مسئول دفتر', 'مسئول دفتر'),
+        ('کارآموز', 'کارآموز'),
     ]
 
     ORGANIZATIONAL_UNIT_CHOICES = [
-        ('human_resources_management', 'مدیریت / معاونت سرمایه انسانی'),
-        ('operations_support_management', 'مدیریت / معاونت عملیات و پشتیبانی'),
-        ('it_management', 'مدیریت / معاونت فناوری اطلاعات'),
-        ('business_management', 'مدیریت / معاونت کسب و کار'),
-        ('planning_management', 'مدیریت / معاونت برنامه ریزی'),
+        ('مدیریت / معاونت سرمایه انسانی', 'مدیریت / معاونت سرمایه انسانی'),
+        ('مدیریت / معاونت عملیات و پشتیبانی', 'مدیریت / معاونت عملیات و پشتیبانی'),
+        ('مدیریت / معاونت فناوری اطلاعات', 'مدیریت / معاونت فناوری اطلاعات'),
+        ('مدیریت / معاونت کسب و کار', 'مدیریت / معاونت کسب و کار'),
+        ('مدیریت / معاونت برنامه ریزی', 'مدیریت / معاونت برنامه ریزی'),
     ]
 
     EMPLOYMENT_STATUS_CHOICES = [
-        ('full_time', 'تمام وقت'),
-        ('part_time', 'پاره وقت'),
-        ('hourly', 'ساعتی'),
-        ('consultant', 'مشاور'),
-        ('terminated', 'قطع همکاری'),
+        ('تمام وقت', 'تمام وقت'),
+        ('پاره وقت', 'پاره وقت'),
+        ('ساعتی', 'ساعتی'),
+        ('مشاور', 'مشاور'),
+        ('قطع همکاری', 'قطع همکاری'),
     ]
 
 
     person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="کارمند")
-    national_id = models.CharField(max_length=10, unique=True, verbose_name="کد ملی")
+    NATIONALID = models.CharField(max_length=10, unique=True, verbose_name="کد ملی")
     identity_number = models.CharField(max_length=20, verbose_name="شماره شناسنامه")
     father_name = models.CharField(max_length=100, verbose_name="نام پدر")
     birth_places = CityField(null=True, blank=True, verbose_name="محل تولد", related_name='birth_places_personnel')
     birth_certificate_issue_city = CityField(null=True, blank=True, verbose_name='محل صدور شناسنامه', related_name='birth_certificate_issue_city_personnel')
-    address = models.CharField(max_length=50, unique=True, verbose_name="آدرس")
-    phone_number = models.CharField(max_length=50, unique=True, verbose_name="تلفن ثابت")
+    address = models.CharField(max_length=50, unique=True, verbose_name="محل سکونت")
+    phone_number = models.CharField(max_length=50, unique=True, verbose_name="تلفن ثابت", null=True, blank=True)
     callphone = models.CharField(max_length=50, unique=True, verbose_name="تلفن همراه")
     home_owner = models.CharField(
         max_length=20,
@@ -155,22 +155,36 @@ class Personnel(TimeStampedModel):
         default='owner',
         verbose_name='نوع تملک',
     )
+    owner_file = models.FileField(
+        upload_to='documents/owner/',
+        verbose_name="تصویر یا فایل سند/اجاره نامه",
+        validators=[validate_file_extension],
+        null=True, blank=True
+    )
     number_of_children = models.IntegerField(verbose_name='تعداد فرزند')
     education_level = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES,
         default='diploma', verbose_name="میزان تحصیلی")
     Insurance_records = models.FloatField(verbose_name='مجموع سوابق بیمه (سال)')
-    national_card_file = models.FileField(
+    national_card_file_front = models.FileField(
         upload_to='documents/national_card/',
-        verbose_name="تصویر یا فایل کارت ملی",
-        validators=[validate_file_extension]
+        verbose_name="روی تصویر یا فایل کارت ملی",
+        validators=[validate_file_extension],
+        null=True, blank=True
+    )
+    national_card_file_back = models.FileField(
+        upload_to='documents/national_card/',
+        verbose_name="پشت تصویر یا فایل کارت ملی",
+        validators=[validate_file_extension],
+        null=True, blank=True
     )
     birth_date = jmodels.jDateField(verbose_name="تاریخ تولد")
-    identity_card_file = models.FileField(
-        upload_to='documents/identity_card/',
-        verbose_name="تصویر یا فایل شناسنامه",
-        validators=[validate_file_extension]
+    insurance_number = models.CharField(max_length=20, verbose_name="شماره بیمه", null=True, blank=True)
+    resume_file = models.FileField(
+        upload_to='documents/resume/',
+        verbose_name="فایل یا تصویر رزومه",
+        validators=[validate_file_extension],
+        null=True, blank=True
     )
-    insurance_number = models.CharField(max_length=20, verbose_name="شماره بیمه")
     profile_image = models.ImageField(
             upload_to='documents/profile_images/',
             verbose_name="عکس پرسنلی",
@@ -215,6 +229,19 @@ class Personnel(TimeStampedModel):
             default='done',
             verbose_name="وضعیت خدمت سربازی"
         )
+    military_service_front = models.FileField(
+        upload_to='documents/military_service/',
+        verbose_name="روی تصویر یا فایل کارت پایان خدمت",
+        validators=[validate_file_extension],
+        null=True, blank=True
+    )
+
+    military_service_back = models.FileField(
+        upload_to='documents/military_service/',
+        verbose_name="پشت تصویر یا فایل کارت پایان خدمت",
+        validators=[validate_file_extension],
+        null=True, blank=True
+    )
     hair_color = models.CharField(
             max_length=20,
             choices=HAIR_COLOR_CHOICES,
@@ -240,7 +267,9 @@ class Personnel(TimeStampedModel):
         default='full_time',
         verbose_name="وضعیت کارمند"
     )
-
+    account_number = models.CharField(max_length=50, blank=True, null=True, verbose_name='شماره حساب بانک رفاه کارگران')
+    sheba_number = models.CharField(max_length=60, blank=True, null=True, verbose_name='شماره شبای بانک رفاه کارگران')
+    card_number = models.CharField(max_length=20, blank=True, null=True, verbose_name='شماره کارت بانک رفاه کارگران')
     class Meta:
         verbose_name = "پرسنل"
         verbose_name_plural = "پرسنل‌ها"
@@ -256,14 +285,14 @@ class Personnel(TimeStampedModel):
 class EducationalDocument(TimeStampedModel):
 
     EDUCATION_LEVEL_CHOICES = [
-        ('cycle', 'سیکل'),
-        ('diploma', 'دیپلم'),
-        ('associate', 'فوق دیپلم'),
-        ('bachelor', 'کارشناسی'),
-        ('master', 'کارشناسی ارشد'),
-        ('doctorate', 'دکترا'),
-        ('postdoctorate', 'فوق دکترا'),
-        ('seminary', 'مدارک حوزوی'),
+        ('سیکل', 'سیکل'),
+        ('دیپلم', 'دیپلم'),
+        ('فوق دیپلم', 'فوق دیپلم'),
+        ('کارشناسی', 'کارشناسی'),
+        ('کارشناسی ارشد', 'کارشناسی ارشد'),
+        ('دکترا', 'دکترا'),
+        ('فوق دکترا', 'فوق دکترا'),
+        ('مدارک حوزوی', 'مدارک حوزوی'),
     ]
     personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE, related_name='educational_documents', verbose_name="پرسنل")
     name_doc = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES,
@@ -271,7 +300,8 @@ class EducationalDocument(TimeStampedModel):
     document_file = models.FileField(
         upload_to='documents/educational/',
         verbose_name="فایل یا تصویر مدرک تحصیلی",
-        validators=[validate_file_extension]
+        validators=[validate_file_extension],
+        null=True, blank=True
     )
 
     class Meta:
@@ -285,7 +315,8 @@ class TrainingCertificate(TimeStampedModel):
     certificate_file = models.FileField(
         upload_to='documents/training/',
         verbose_name="فایل یا تصویر گواهینامه آموزشی",
-        validators=[validate_file_extension]
+        validators=[validate_file_extension],
+        null=True, blank=True
     )
 
     class Meta:
@@ -299,7 +330,8 @@ class InsuranceRecords(TimeStampedModel):
     certificate_file = models.FileField(
         upload_to='documents/training/',
         verbose_name="فایل یا تصویر  سابقه",
-        validators=[validate_file_extension]
+        validators=[validate_file_extension],
+        null=True, blank=True
     )
 
     class Meta:
@@ -309,26 +341,26 @@ class InsuranceRecords(TimeStampedModel):
 
 class EmploymentHistory(models.Model):
     
-    job_title_choices = [
-        ('expert', 'کارشناس'),
-        ('senior_expert', 'کارشناس ارشد'),
-        ('chief', 'رئیس'),
-        ('deputy', 'معاون'),
-        ('manager', 'مدیر'),
-        ('ceo', 'مدیرعامل'),
-        ('janitor', 'آبدارچی'),
-        ('guard', 'نگهبان'),
-        ('driver', 'راننده'),
-        ('office_manager', 'مسئول دفتر'),
-        ('intern', 'کارآموز'),
+    JOB_TITLE_CHOICES = [
+        ('کارشناس', 'کارشناس'),
+        ('کارشناس ارشد', 'کارشناس ارشد'),
+        ('رئیس', 'رئیس'),
+        ('معاون', 'معاون'),
+        ('مدیر', 'مدیر'),
+        ('مدیرعامل', 'مدیرعامل'),
+        ('آبدارچی', 'آبدارچی'),
+        ('نگهبان', 'نگهبان'),
+        ('راننده', 'راننده'),
+        ('مسئول دفتر', 'مسئول دفتر'),
+        ('کارآموز', 'کارآموز'),
     ]
-    
-    organizational_unit_choices = [
-        ('human_resources_management', 'مدیریت / معاونت سرمایه انسانی'),
-        ('operations_support_management', 'مدیریت / معاونت عملیات و پشتیبانی'),
-        ('it_management', 'مدیریت / معاونت فناوری اطلاعات'),
-        ('business_management', 'مدیریت / معاونت کسب و کار'),
-        ('planning_management', 'مدیریت / معاونت برنامه ریزی'),
+
+    ORGANIZATIONAL_UNIT_CHOICES = [
+        ('مدیریت / معاونت سرمایه انسانی', 'مدیریت / معاونت سرمایه انسانی'),
+        ('مدیریت / معاونت عملیات و پشتیبانی', 'مدیریت / معاونت عملیات و پشتیبانی'),
+        ('مدیریت / معاونت فناوری اطلاعات', 'مدیریت / معاونت فناوری اطلاعات'),
+        ('مدیریت / معاونت کسب و کار', 'مدیریت / معاونت کسب و کار'),
+        ('مدیریت / معاونت برنامه ریزی', 'مدیریت / معاونت برنامه ریزی'),
     ]
 
     personnel = models.ForeignKey(
@@ -340,13 +372,13 @@ class EmploymentHistory(models.Model):
     company_name = models.CharField(max_length=255, verbose_name="نام شرکت")
     job_title = models.CharField(
         max_length=50,
-        choices=job_title_choices,
+        choices=JOB_TITLE_CHOICES,
         verbose_name="عنوان شغلی"
     )
     work_experience = models.FloatField(verbose_name="میزان سابقه (سال)")
     organizational_unit = models.CharField(
         max_length=50,
-        choices=organizational_unit_choices,
+        choices=ORGANIZATIONAL_UNIT_CHOICES,
         verbose_name="واحد سازمانی"
     )
 
@@ -356,3 +388,35 @@ class EmploymentHistory(models.Model):
 
     def __str__(self):
         return f"{self.company_name} - {self.job_title}"
+    
+
+class TypeDocRecords(TimeStampedModel):
+
+    doc_title_choices = [
+        ('firstpage', 'صفحه اول'),
+        ('secondpage', 'صفحه دوم'),
+        ('thirdpage', 'صفحه سوم'),
+        ('fourthpage', 'صفحه چهارم'),
+        ('fifthpage', 'صفحه پنجم')
+    ]
+
+    type_title_choices = [
+        ('identitycardfile', 'شناسنامه'),
+        ('passport', 'گذرنامه')
+    ]
+
+    personnel = models.ForeignKey(Personnel, on_delete=models.CASCADE, related_name='typedocs_records', verbose_name="پرسنل")
+    name_type = models.CharField(max_length=100, choices=type_title_choices, verbose_name='نوع مدرک', null=True, blank=True)
+    name_doc = models.CharField(max_length=100, choices=doc_title_choices, verbose_name='نام صفحه', null=True, blank=True)
+    serial_number = models.CharField(max_length=20, null=True, blank=True, verbose_name='شماره سریال', help_text='د18/909090')
+    
+    certificate_file = models.FileField(
+        upload_to='documents/typedoc/',
+        verbose_name="فایل یا تصویر  مدرک",
+        validators=[validate_file_extension],
+        null=True, blank=True
+    )
+
+    class Meta:
+        verbose_name = "مدرک شناسنامه/پاسپورت"
+        verbose_name_plural = "مدارک شناسنامه/پاسپورت"

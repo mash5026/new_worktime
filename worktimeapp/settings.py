@@ -140,8 +140,11 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [
     BASE_DIR / "worktime" / "static",
+    BASE_DIR / "static" / "js",
 ]
 
+IMPORT_EXPORT_FORMATS = [XLSX, CSV]
+EXPORT_FORMATS = [XLSX, CSV]
 
 
 MEDIA_URL = '/media/'

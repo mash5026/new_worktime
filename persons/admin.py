@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory
+from .models import Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords
 from jalali_date.admin import ModelAdminJalaliMixin
 from jalali_date.widgets import AdminJalaliDateWidget
 from iranian_cities.admin import IranianCitiesAdmin
@@ -8,6 +8,11 @@ from jalali_date.admin import ModelAdminJalaliMixin
 from import_export.admin import ImportExportModelAdmin
 
 
+class TypeDocRecordsInline(admin.TabularInline):  # یا admin.StackedInline برای طراحی متفاوت
+    model = TypeDocRecords
+    extra = 1  # تعداد رکوردهایی که به صورت پیش‌فرض نمایش داده می‌شود
+    fields = ('name_type', 'name_doc', 'serial_number','certificate_file')  # فیلدهای مورد نمایش در فرم اینلاین
+    #readonly_fields = ('name_type', 'name_doc', 'certificate_file')  # در صورت نیاز می‌توانید فیلدهای فقط خواندنی تنظیم کنید
 
 class EducationalDocumentInline(admin.TabularInline):  # یا admin.StackedInline برای طراحی متفاوت
     model = EducationalDocument
@@ -39,13 +44,47 @@ class EmploymentHistoryInline(admin.TabularInline):  # Or admin.StackedInline fo
 
 @admin.register(Personnel)
 class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitiesAdmin, admin.ModelAdmin):
-    list_display = ('profile_image_preview', 'first_name', 'last_name', 'national_id', 'get_date', 'education_level', 'Insurance_records',
+    list_display = ('profile_image_preview', 'first_name', 'last_name', 'NATIONALID', 'get_date', 'education_level', 'Insurance_records',
                     'insurance_number', 'job_title', 'nationality', 'religion', 'sect', 'marital_status', 'weight', 'height',
                     'military_service', 'hair_color', 'organizational_title',  'organizational_unit', 'employment_status')
-    search_fields = ('person', 'national_id')
+    search_fields = ('person', 'NATIONALID')
     list_filter = ('birth_date',)
-    inlines = [EducationalDocumentInline, TrainingCertificateInline, InsuranceRecordsInline, EmploymentHistoryInline]
+    inlines = [TypeDocRecordsInline, EducationalDocumentInline, TrainingCertificateInline, InsuranceRecordsInline, EmploymentHistoryInline]
     readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by', 'first_name', 'last_name')
+    class Media:
+        js = ('nationalid_check.js',)
+
+    fieldsets = [
+        ('اطلاعات فردی', {
+            'fields': [('person', 'NATIONALID', 'identity_number'),
+                       ('father_name', 'birth_places', 'birth_certificate_issue_city'),
+                       ('address', 'phone_number', 'callphone')],
+            'classes': ['wide'],
+        }),
+        ('اطلاعات شغلی', {
+            'fields': [('job_title', 'organizational_unit', 'organizational_title'),
+                       ('employment_status', 'account_number', 'sheba_number'),
+                       ('card_number',)],
+        }),
+        ('اطلاعات تحصیلی', {
+            'fields': [('education_level', 'Insurance_records')],
+        }),
+        ('وضعیت نظام وظیفه', {
+            'fields': [('military_service', 'military_service_front', 'military_service_back')],
+        }),
+        ('اطلاعات هویتی', {
+            'fields': [('nationality', 'religion', 'sect'),
+                       ('marital_status', 'number_of_children', 'birth_date')],
+        }),
+        ('مشخصات ظاهری', {
+            'fields': [('weight', 'height', 'hair_color'),
+                       ('profile_image',)],
+        }),
+        ('مدارک و اسناد', {
+            'fields': [('national_card_file_front', 'national_card_file_back'),
+                       ('resume_file', 'owner_file')],
+        }),
+    ]
 
     def first_name(self, obj):
         return obj.first_name
@@ -123,6 +162,17 @@ class TrainingCertificateAdmin(admin.ModelAdmin):
 @admin.register(InsuranceRecords)
 class InsuranceRecordsAdmin(admin.ModelAdmin):
     list_display = ('personnel', 'name_doc','certificate_file')
+    search_fields = ('personnel__first_name', 'personnel__last_name')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
+        return qs.filter(personnel=request.user.id)    
+
+@admin.register(TypeDocRecords)
+class TypeDocRecordsAdmin(admin.ModelAdmin):
+    list_display = ('personnel', 'name_type','name_doc', 'serial_number', 'certificate_file')
     search_fields = ('personnel__first_name', 'personnel__last_name')
 
     def get_queryset(self, request):
