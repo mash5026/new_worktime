@@ -82,7 +82,7 @@ class Personnel(TimeStampedModel):
     ]
 
     SECT_CHOICES = [
-        ('سنتی', 'سنتی'),
+        ('سنی', 'سنی'),
         ('شیعه', 'شیعه'),
     ]
 
@@ -148,7 +148,7 @@ class Personnel(TimeStampedModel):
     birth_certificate_issue_city = CityField(null=True, blank=True, verbose_name='محل صدور شناسنامه', related_name='birth_certificate_issue_city_personnel')
     address = models.CharField(max_length=50, unique=True, verbose_name="محل سکونت")
     phone_number = models.CharField(max_length=50, unique=True, verbose_name="تلفن ثابت", null=True, blank=True)
-    callphone = models.CharField(max_length=50, unique=True, verbose_name="تلفن همراه")
+    callphone = models.CharField(max_length=50, unique=True, verbose_name="شماره همراه")
     home_owner = models.CharField(
         max_length=20,
         choices=HOME_OWNERSHIP_CHOICES,

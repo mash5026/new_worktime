@@ -52,7 +52,7 @@ class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitie
     inlines = [TypeDocRecordsInline, EducationalDocumentInline, TrainingCertificateInline, InsuranceRecordsInline, EmploymentHistoryInline]
     readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by', 'first_name', 'last_name')
     class Media:
-        js = ('nationalid_check.js',)
+        js = ('nationalid_check.js', 'check_mobile.js',)
 
     fieldsets = [
         ('اطلاعات فردی', {

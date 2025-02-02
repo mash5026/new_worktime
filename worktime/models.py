@@ -17,7 +17,7 @@ ABSENT = 'A'
 PRESENT = 'P'
 OFF = 'O'
 MISSION = 'M'
-LIST_ANSWER = [(ABSENT, 'غایت'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت')]
+LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت')]
 
 class WorkRecord(models.Model):
     person = models.CharField(max_length=100)
@@ -124,29 +124,33 @@ class WorkRecordDaily(models.Model):
     departure_time = models.TimeField(null=True, blank=True, verbose_name='ساعت خروج')
     status = models.CharField(max_length=10, choices=LIST_ANSWER, default=PRESENT, verbose_name='وضعیت روزانه کارمند')
 
-    def save(self, *args, **kwargs):
-        self._calculate_status()
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self._calculate_status()
+    #     super().save(*args, **kwargs)
 
 
-    def _calculate_status(self):
-        """Calculate the employee's presence status based on arrival and departure times."""
-        if self.arrived_time is not None and self.departure_time is not None:
-            # تبدیل تاریخ شمسی به میلادی
-            gregorian_date = self.date_work.togregorian()
+    # def _calculate_status(self):
 
-            arrived_dt = datetime.combine(gregorian_date, self.arrived_time)
-            departure_dt = datetime.combine(gregorian_date, self.departure_time)
-            total_hours = (departure_dt - arrived_dt).total_seconds() / 3600
+    #     if self.arrived_time is None and self.departure_time is None:
+    #         self.status = OFF
 
-            # Set status to absent if arriving after 12 noon or working less than the required hours
-            noon_time = time(12, 0)
-            if self.arrived_time > noon_time or total_hours < 5:
-                self.status = ABSENT
-            else:
-                self.status = PRESENT
-        else:
-            self.status = ABSENT
+    #     """Calculate the employee's presence status based on arrival and departure times."""
+    #     if self.arrived_time is not None and self.departure_time is not None:
+    #         # تبدیل تاریخ شمسی به میلادی
+    #         gregorian_date = self.date_work.togregorian()
+
+    #         arrived_dt = datetime.combine(gregorian_date, self.arrived_time)
+    #         departure_dt = datetime.combine(gregorian_date, self.departure_time)
+    #         total_hours = (departure_dt - arrived_dt).total_seconds() / 3600
+
+    #         # Set status to absent if arriving after 12 noon or working less than the required hours
+    #         noon_time = time(12, 0)
+    #         if self.arrived_time > noon_time or total_hours < 5:
+    #             self.status = ABSENT
+    #         else:
+    #             self.status = PRESENT
+    #     else:
+    #         self.status = ABSENT
 
 
     class Meta:
