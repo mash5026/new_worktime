@@ -6,6 +6,7 @@ from jalali_date.widgets import AdminJalaliDateWidget
 from iranian_cities.admin import IranianCitiesAdmin
 from jalali_date.admin import ModelAdminJalaliMixin
 from import_export.admin import ImportExportModelAdmin
+from .forms import EducationalDocumentForm, TrainingCertificateForm, InsuranceRecordsForm, EmploymentHistoryForm
 
 
 
@@ -146,49 +147,55 @@ class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitie
 
 @admin.register(EducationalDocument)
 class EducationalDocumentAdmin(admin.ModelAdmin):
+    form = EducationalDocumentForm
     list_display = ('personnel', 'name_doc','document_file')
     search_fields = ('personnel__first_name', 'personnel__last_name')
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
-        return qs.filter(personnel=request.user.id)
+        return qs.filter(personnel__person=request.user)
 
 
 @admin.register(TrainingCertificate)
 class TrainingCertificateAdmin(admin.ModelAdmin):
     list_display = ('personnel', 'name_doc','certificate_file')
     search_fields = ('personnel__first_name', 'personnel__last_name')
-
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
+    form = TrainingCertificateForm
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
-        return qs.filter(personnel=request.user.id)
+        return qs.filter(personnel__person=request.user)
 
 
 @admin.register(InsuranceRecords)
 class InsuranceRecordsAdmin(admin.ModelAdmin):
     list_display = ('personnel', 'name_doc','certificate_file')
     search_fields = ('personnel__first_name', 'personnel__last_name')
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
+    form = InsuranceRecordsForm
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
-        return qs.filter(personnel=request.user.id)    
+        return qs.filter(personnel__person=request.user)    
 
 @admin.register(TypeDocRecords)
 class TypeDocRecordsAdmin(admin.ModelAdmin):
     list_display = ('personnel', 'name_type','name_doc', 'serial_number', 'certificate_file')
     search_fields = ('personnel__first_name', 'personnel__last_name')
+    readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
-        return qs.filter(personnel=request.user.id)
+        return qs.filter(personnel__person=request.user)
     
 
 @admin.register(EmploymentHistory)
@@ -196,12 +203,13 @@ class EmploymentHistoryAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
     list_display = ['personnel', 'company_name', 'job_title', 'work_experience', 'organizational_unit']
     search_fields = ['company_name', 'job_title']
     list_filter = ['job_title', 'organizational_unit']
+    form = EmploymentHistoryForm
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
-        return qs.filter(personnel=request.user.id)
+        return qs.filter(personnel__person=request.user)
     
 
 @admin.register(AssetTransaction)
