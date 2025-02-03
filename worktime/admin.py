@@ -11,6 +11,7 @@ from django.db.models import Q
 from jalali_date.widgets import AdminJalaliDateWidget
 from jalali_date.admin import ModelAdminJalaliMixin
 from .forms import WorkRecordDailyForm
+from persons.signals import get_current_user
 
 
 # @admin.action(description="رد کردن اضافه کاری")

@@ -119,7 +119,7 @@ class WorkRecordFinally(models.Model):
 
 class WorkRecordDaily(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="کارمند")
-    date_work = jmodels.jDateField(verbose_name="تاریخ")  # Changed from CharField to DateField for proper date handling
+    date_work = jmodels.jDateField(verbose_name="تاریخ", default=jdatetime.date.today)  # Changed from CharField to DateField for proper date handling
     arrived_time = models.TimeField(null=True, blank=True, verbose_name='ساعت ورود')
     departure_time = models.TimeField(null=True, blank=True, verbose_name='ساعت خروج')
     status = models.CharField(max_length=10, choices=LIST_ANSWER, default=PRESENT, verbose_name='وضعیت روزانه کارمند')

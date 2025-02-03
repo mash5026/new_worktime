@@ -461,7 +461,7 @@ class NameAsset(models.Model):
 class Asset(models.Model):
     name = models.ForeignKey(NameAsset, on_delete=models.CASCADE, verbose_name="نام کالا")
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, verbose_name="برند کالا")
-    price = models.DecimalField(max_digits=15, decimal_places=0, verbose_name="قیمت (ریال)")  
+    price = models.DecimalField(max_digits=15, default=0, decimal_places=0, verbose_name="قیمت (ریال)")  
     class Meta:
         verbose_name = "کالا"
         verbose_name_plural = "کالاها"
