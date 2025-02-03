@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'persons.middleware.CurrentUserMiddleware',
+    'persons.middleware.LicenseMiddleware',
 ]
 
 ROOT_URLCONF = 'worktimeapp.urls'

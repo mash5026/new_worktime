@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from iranian_cities.fields import CityField
 from persons.middleware import get_current_user
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -163,7 +165,7 @@ class Personnel(TimeStampedModel):
     )
     number_of_children = models.IntegerField(verbose_name='تعداد فرزند')
     education_level = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES,
-        default='diploma', verbose_name="میزان تحصیلی")
+        default='diploma', verbose_name="میزان تحصلات")
     Insurance_records = models.FloatField(verbose_name='مجموع سوابق بیمه (سال)')
     national_card_file_front = models.FileField(
         upload_to='documents/national_card/',
@@ -420,3 +422,90 @@ class TypeDocRecords(TimeStampedModel):
     class Meta:
         verbose_name = "مدرک شناسنامه/پاسپورت"
         verbose_name_plural = "مدارک شناسنامه/پاسپورت"
+
+
+class License(models.Model):
+    activation_date = models.DateTimeField(verbose_name="تاریخ فعال‌سازی", default=timezone.now)
+    expiration_date = models.DateTimeField(verbose_name="تاریخ انقضا", blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.expiration_date:
+            self.expiration_date = self.activation_date + timedelta(days=90)
+        super().save(*args, **kwargs)
+
+    def is_expired(self):
+        return self.expiration_date < timezone.now()
+    
+
+class Brand(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name="نام برند")
+
+    class Meta:
+        verbose_name = "برند"
+        verbose_name_plural = "برندها"
+
+    def __str__(self):
+        return self.name
+    
+class NameAsset(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name="نام کالا")
+
+    class Meta:
+        verbose_name = "نام کالا"
+        verbose_name_plural = "نام کالاها"
+
+    def __str__(self):
+        return self.name
+    
+
+class Asset(models.Model):
+    name = models.ForeignKey(NameAsset, on_delete=models.CASCADE, verbose_name="نام کالا")
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, verbose_name="برند کالا")
+    price = models.DecimalField(max_digits=15, decimal_places=0, verbose_name="قیمت (ریال)")  
+    class Meta:
+        verbose_name = "کالا"
+        verbose_name_plural = "کالاها"
+
+    def __str__(self):
+        return f"{self.name} - {self.brand}"
+    
+
+class AssetTransaction(models.Model):
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_assets", verbose_name="شخص تحویل گیرنده")
+    giver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_assets", verbose_name="شخص تحویل‌دهنده")
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name="نام کالا", related_name="transactions")
+    accesories = models.ForeignKey(NameAsset, on_delete=models.CASCADE, verbose_name="لوازم جانبی", null=True, blank=True)
+    serial_number = models.CharField(max_length=255, unique=True, verbose_name="شماره پلاک", null=True, blank=True)
+    receive_date = jmodels.jDateField(verbose_name="تاریخ دریافت", null=True, blank=True)
+    return_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ تحویل")
+    description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
+    
+
+    class Meta:
+        verbose_name = "معامله دارایی"
+        verbose_name_plural = "معاملات دارایی"
+
+    def __str__(self):
+        return f"{self.asset} | {self.serial_number} | {self.receiver}"
+    
+class AssetTransactionHistory(models.Model):
+    asset_transaction = models.ForeignKey(AssetTransaction, on_delete=models.CASCADE, related_name="history", verbose_name="تراکنش اصلی")
+    receiver = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="received_assets_history", verbose_name="شخص تحویل گیرنده")
+    giver = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="given_assets_history", verbose_name="شخص تحویل‌دهنده")
+    receive_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ دریافت")
+    return_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ تحویل")
+    description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
+
+    class Meta:
+        verbose_name = "تاریخچه معامله دارایی"
+        verbose_name_plural = "تاریخچه معاملات دارایی"
+
+    def __str__(self):
+        return f"{self.asset_transaction.asset} | {self.receive_date} | {self.receiver}"
+
+    def save(self, *args, **kwargs):
+        # به‌روز رسانی تاریخ تحویل در AssetTransaction
+        if self.receive_date and not self.asset_transaction.return_date:
+            self.asset_transaction.return_date = self.receive_date
+            self.asset_transaction.save()
+        super().save(*args, **kwargs)

@@ -304,6 +304,13 @@ button.ui-button::-moz-focus-inner {
 	text-align: right;
 	text-decoration: none;
 }
+
+.ui-datepicker td:nth-child(6), /* پنج‌شنبه */
+.ui-datepicker td:nth-child(7) { /* جمعه */
+    background-color: red !important;
+    color: white !important;
+    font-weight: bold;
+}
 .ui-datepicker .ui-datepicker-buttonpane {
 	background-image: none;
 	margin: .7em 0 0 0;

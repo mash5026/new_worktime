@@ -5,3 +5,5 @@ class PersonsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'persons'
     verbose_name='سامانه پروفایل پرسنل'
+    def ready(self):
+            import persons.signals

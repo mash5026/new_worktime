@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.db.models import Q
 from jalali_date.widgets import AdminJalaliDateWidget
 from jalali_date.admin import ModelAdminJalaliMixin
+from .forms import WorkRecordDailyForm
 
 
 # @admin.action(description="رد کردن اضافه کاری")
@@ -125,13 +126,21 @@ from jalali_date.admin import ModelAdminJalaliMixin
 
 @admin.register(WorkRecordDaily)
 class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['person', 'date_work', 'arrived_time', 'departure_time', 'status']
+    list_display = ['person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status']
     list_filter = ('person',)
     search_fields = ('person',)
+    form = WorkRecordDailyForm
+
+    def get_form(self, request, obj=None, **kwargs):
+        """ ارسال درخواست به فرم برای فیلتر کردن فیلد person """
+        kwargs['form'] = WorkRecordDailyForm
+        kwargs['form'].base_fields['person'].initial = request.user  # مقدار پیش‌فرض برای کاربر فعلی
+        return super().get_form(request, obj, **kwargs)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == 'date_work':
             kwargs['widget'] = AdminJalaliDateWidget()
+        
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def get_queryset(self, request):
@@ -139,5 +148,3 @@ class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
         return qs.filter(person=request.user)
-
-

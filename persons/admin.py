@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords
+from .models import AssetTransactionHistory, Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords, AssetTransaction, Asset, Brand, NameAsset
 from jalali_date.admin import ModelAdminJalaliMixin
 from jalali_date.widgets import AdminJalaliDateWidget
 from iranian_cities.admin import IranianCitiesAdmin
 from jalali_date.admin import ModelAdminJalaliMixin
 from import_export.admin import ImportExportModelAdmin
+
 
 
 class TypeDocRecordsInline(admin.TabularInline):  # یا admin.StackedInline برای طراحی متفاوت
@@ -40,6 +41,14 @@ class EmploymentHistoryInline(admin.TabularInline):  # Or admin.StackedInline fo
     #readonly_fields = ['start_date', 'end_date']  # If you want some fields to be readonly
     show_change_link = True  # Allows a link to edit employment history
 
+class AssetTransactionHistoryInline(ModelAdminJalaliMixin, admin.TabularInline):
+    model = AssetTransactionHistory
+    extra = 1
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'receive_date' or db_field.name =='return_date':
+            kwargs['widget'] = AdminJalaliDateWidget()  # استفاده از ویجت تاریخ شمسی
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
 @admin.register(Personnel)
@@ -67,7 +76,7 @@ class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitie
                        ('card_number',)],
         }),
         ('اطلاعات تحصیلی', {
-            'fields': [('education_level', 'Insurance_records')],
+            'fields': [('education_level', 'Insurance_records', 'insurance_number')],
         }),
         ('وضعیت نظام وظیفه', {
             'fields': [('military_service', 'military_service_front', 'military_service_back')],
@@ -193,3 +202,55 @@ class EmploymentHistoryAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
         return qs.filter(personnel=request.user.id)
+    
+
+@admin.register(AssetTransaction)
+class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
+    list_display = ("asset", "serial_number", "receiver", "giver", "receive_date", "return_date", "description")
+    search_fields = ("serial_number", "receiver__username", "giver__username", "asset__name")
+    list_filter = ("receive_date", "return_date", "receiver")
+    inlines = [AssetTransactionHistoryInline]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs  # ابرکاربر همه‌ی اطلاعات را می‌بیند
+        return qs.filter(receiver=request.user)  # کاربران فقط اموال خودشان را ببینند
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "receiver" and not request.user.is_superuser:
+            kwargs["queryset"] = request.user.received_assets.all()  # فقط کاربر فعلی را نمایش دهد
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'receive_date' or db_field.name == 'return_date':
+            kwargs['widget'] = AdminJalaliDateWidget()
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+    
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+@admin.register(NameAsset)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+@admin.register(Asset)
+class AssetAdmin(admin.ModelAdmin):
+    list_display = ("name", "brand", "price")
+    search_fields = ("name", "brand__name", "model_name")
+    list_filter = ("brand",)
+
+# @admin.register(AssetTransactionHistory)
+# class AssetTransactionHistoryAdmin(ModelAdminJalaliMixin,  admin.ModelAdmin):
+#     list_display = ('asset_transaction', 'receiver', 'receive_date', 'description')
+#     search_fields = ('asset_transaction__asset__name', 'receiver__username')
+#     list_filter = ('receive_date', 'receiver')
+
+#     def formfield_for_dbfield(self, db_field, request, **kwargs):
+#         if db_field.name == 'receive_date':
+#             kwargs['widget'] = AdminJalaliDateWidget()
+#         return super().formfield_for_dbfield(db_field, request, **kwargs)
