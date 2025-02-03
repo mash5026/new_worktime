@@ -131,6 +131,7 @@ class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.
     list_filter = ('person',)
     search_fields = ('person',)
     form = WorkRecordDailyForm
+    list_per_page = 25
 
     def get_form(self, request, obj=None, **kwargs):
         """ ارسال درخواست به فرم برای فیلتر کردن فیلد person """

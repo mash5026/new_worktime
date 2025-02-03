@@ -377,7 +377,7 @@ class EmploymentHistory(models.Model):
         choices=JOB_TITLE_CHOICES,
         verbose_name="عنوان شغلی"
     )
-    work_experience = models.FloatField(verbose_name="میزان سابقه (سال)")
+    work_experience = models.FloatField(verbose_name="میزان سابقه (ماه)")
     organizational_unit = models.CharField(
         max_length=50,
         choices=ORGANIZATIONAL_UNIT_CHOICES,
@@ -467,8 +467,7 @@ class Asset(models.Model):
         verbose_name_plural = "کالاها"
 
     def __str__(self):
-        return f"{self.name} - {self.brand}"
-    
+        return f"{self.name} - {self.brand}"   
 
 class AssetTransaction(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_assets", verbose_name="شخص تحویل گیرنده")

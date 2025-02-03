@@ -57,7 +57,7 @@ class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitie
     list_display = ('profile_image_preview', 'first_name', 'last_name', 'NATIONALID', 'get_date', 'education_level', 'Insurance_records',
                     'insurance_number', 'job_title', 'nationality', 'religion', 'sect', 'marital_status', 'weight', 'height',
                     'military_service', 'hair_color', 'organizational_title',  'organizational_unit', 'employment_status')
-    search_fields = ('person', 'NATIONALID')
+    search_fields = ('NATIONALID', 'insurance_number')
     list_filter = ('birth_date',)
     inlines = [TypeDocRecordsInline, EducationalDocumentInline, TrainingCertificateInline, InsuranceRecordsInline, EmploymentHistoryInline]
     readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by', 'first_name', 'last_name')
@@ -215,10 +215,10 @@ class EmploymentHistoryAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
 @admin.register(AssetTransaction)
 class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
     list_display = ("asset", "serial_number", "receiver", "giver", "receive_date", "return_date", "description")
-    search_fields = ("serial_number", "receiver__username", "giver__username", "asset__name")
+    search_fields = ("serial_number",)
     list_filter = ("receive_date", "return_date", "receiver")
     inlines = [AssetTransactionHistoryInline]
-
+    list_per_page = 20
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -242,15 +242,21 @@ class BrandAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 @admin.register(NameAsset)
-class BrandAdmin(admin.ModelAdmin):
+class NameAssetAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ("name", "brand", "price")
-    search_fields = ("name", "brand__name", "model_name")
+    list_display = ("name", "brand", "price")    
     list_filter = ("brand",)
+    search_fields = []  # خالی نگه دارید تا از get_search_results استفاده شود
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        if search_term:
+            queryset |= self.model.objects.filter(name__name__icontains=search_term)  # جستجو در نام کالا
+        return queryset, use_distinct
 
 # @admin.register(AssetTransactionHistory)
 # class AssetTransactionHistoryAdmin(ModelAdminJalaliMixin,  admin.ModelAdmin):
