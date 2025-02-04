@@ -478,7 +478,8 @@ class AssetTransaction(models.Model):
     receive_date = jmodels.jDateField(verbose_name="تاریخ دریافت", null=True, blank=True)
     return_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ تحویل")
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
-    
+    approval_status = models.TextField(blank=True, null=True, verbose_name="وضعیت تأیید")
+    is_approved = models.BooleanField(default=False, verbose_name="تأیید شده")   
 
     class Meta:
         verbose_name = "معامله دارایی"
@@ -486,6 +487,13 @@ class AssetTransaction(models.Model):
 
     def __str__(self):
         return f"{self.asset} | {self.serial_number} | {self.receiver}"
+    
+    def save(self, *args, **kwargs):
+            if self.is_approved and self.receiver:
+                self.approval_status = f"این کالا توسط {self.receiver.get_full_name()} مورد تأیید قرار گرفته است."
+            elif not self.is_approved:
+                self.approval_status = None
+            super().save(*args, **kwargs)
     
 class AssetTransactionHistory(models.Model):
     asset_transaction = models.ForeignKey(AssetTransaction, on_delete=models.CASCADE, related_name="history", verbose_name="تراکنش اصلی")

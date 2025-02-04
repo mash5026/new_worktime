@@ -214,7 +214,7 @@ class EmploymentHistoryAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
 
 @admin.register(AssetTransaction)
 class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
-    list_display = ("asset", "serial_number", "receiver", "giver", "receive_date", "return_date", "description")
+    list_display = ("asset", "serial_number", "receiver", "giver", "receive_date", "return_date", "is_approved", 'approval_status')
     search_fields = ("serial_number",)
     list_filter = ("receive_date", "return_date", "receiver")
     inlines = [AssetTransactionHistoryInline]
@@ -227,13 +227,26 @@ class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "receiver" and not request.user.is_superuser:
-            kwargs["queryset"] = request.user.received_assets.all()  # فقط کاربر فعلی را نمایش دهد
+            kwargs["queryset"] = request.user.received_assets.all()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == 'receive_date' or db_field.name == 'return_date':
             kwargs['widget'] = AdminJalaliDateWidget()
         return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        ۱. اگر کالا تأیید شده باشد (`is_approved=True`)، کاربران عادی نمی‌توانند ویرایش کنند.
+        ۲. کاربران عادی فقط درصورتی می‌توانند تأیید کنند که `is_approved=False` باشد.
+        ۳. ابرکاربران همیشه اجازه ویرایش دارند.
+        """
+        if obj:
+            if obj.is_approved and not request.user.is_superuser:
+                return ("receiver", "giver", "asset", "accesories", "serial_number", "receive_date", "return_date", "description", "is_approved")  
+            elif not obj.is_approved:
+                return ("receiver", "giver", "asset", "accesories", "serial_number", "receive_date", "return_date", "description", "approval_status")  # کاربران عادی فقط گزینه‌ی تأیید را ببینند
+        return super().get_readonly_fields(request, obj)
     
 
 @admin.register(Brand)
