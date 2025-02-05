@@ -51,6 +51,30 @@ class TimeStampedModel(models.Model):
         super().save(*args, **kwargs)
 
 
+class Departments(models.Model):
+    name = models.CharField(max_length=200, verbose_name="نام")
+    department_code = models.CharField(max_length=10, verbose_name="کد دپارتمان")
+
+    def __str__(self):
+        return f"{self.name} - واحد {self.department_code}"
+    
+    class Meta:
+        verbose_name = "دپارتمان"
+        verbose_name_plural = "دپارتمان‌ها"
+
+
+class Rooms(models.Model):
+    department = models.ForeignKey(Departments, on_delete=models.CASCADE, verbose_name="دپارتمان")
+    room_number = models.CharField(max_length=10, verbose_name="شماره اتاق")
+
+    def __str__(self):
+        return f"اتاق {self.room_number} - {self.department}"
+    
+    class Meta:
+        verbose_name = "اتاق"
+        verbose_name_plural = "اتاق‌ها"
+
+
 
 class Personnel(TimeStampedModel):
     EDUCATION_LEVEL_CHOICES = [
@@ -470,11 +494,12 @@ class Asset(models.Model):
         return f"{self.name} - {self.brand}"   
 
 class AssetTransaction(models.Model):
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_assets", verbose_name="شخص تحویل گیرنده")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_assets", verbose_name="شخص گیرنده")
     giver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_assets", verbose_name="شخص تحویل‌دهنده")
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name="نام کالا", related_name="transactions")
     accesories = models.ForeignKey(NameAsset, on_delete=models.CASCADE, verbose_name="لوازم جانبی", null=True, blank=True)
     serial_number = models.CharField(max_length=255, unique=True, verbose_name="شماره پلاک", null=True, blank=True)
+    location = models.ForeignKey(Rooms, on_delete=models.CASCADE, verbose_name="موقعیت مکانی کالا", null=True, blank=True)
     receive_date = jmodels.jDateField(verbose_name="تاریخ دریافت", null=True, blank=True)
     return_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ تحویل")
     description = models.TextField(blank=True, null=True, verbose_name="توضیحات")
@@ -497,7 +522,7 @@ class AssetTransaction(models.Model):
     
 class AssetTransactionHistory(models.Model):
     asset_transaction = models.ForeignKey(AssetTransaction, on_delete=models.CASCADE, related_name="history", verbose_name="تراکنش اصلی")
-    receiver = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="received_assets_history", verbose_name="شخص تحویل گیرنده")
+    receiver = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="received_assets_history", verbose_name="شخص گیرنده")
     giver = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="given_assets_history", verbose_name="شخص تحویل‌دهنده")
     receive_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ دریافت")
     return_date = jmodels.jDateField(null=True, blank=True, verbose_name="تاریخ تحویل")

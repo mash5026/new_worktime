@@ -1,13 +1,15 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import AssetTransactionHistory, Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords, AssetTransaction, Asset, Brand, NameAsset
+from .models import AssetTransactionHistory, Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords, AssetTransaction, Asset, Brand, NameAsset, Rooms, Departments, Departments
 from jalali_date.admin import ModelAdminJalaliMixin
 from jalali_date.widgets import AdminJalaliDateWidget
 from iranian_cities.admin import IranianCitiesAdmin
 from jalali_date.admin import ModelAdminJalaliMixin
 from import_export.admin import ImportExportModelAdmin
 from .forms import EducationalDocumentForm, TrainingCertificateForm, InsuranceRecordsForm, EmploymentHistoryForm
+from .resources import AssetTransactionResource
 
+admin.site.index_title = "به سامانه راهبری مدیریت سرمایه انسانی خوش آمدید" 
 
 
 class TypeDocRecordsInline(admin.TabularInline):  # یا admin.StackedInline برای طراحی متفاوت
@@ -213,12 +215,34 @@ class EmploymentHistoryAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
     
 
 @admin.register(AssetTransaction)
-class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
-    list_display = ("asset", "serial_number", "receiver", "giver", "receive_date", "return_date", "is_approved", 'approval_status')
+class AssetTransactionAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, admin.ModelAdmin):
+    resource_class = AssetTransactionResource
+    list_display = ("asset_name", "serial_number", "location_name", "receiver_name", "receive_date", "giver_name", "return_date", "accesories_name", "is_approved", "approval_status")
     search_fields = ("serial_number",)
     list_filter = ("receive_date", "return_date", "receiver")
     inlines = [AssetTransactionHistoryInline]
     list_per_page = 20
+
+    def receiver_name(self, obj):
+        return obj.receiver.get_full_name() if obj.receiver else "-"
+    receiver_name.short_description = "شخص گیرنده"
+
+    def giver_name(self, obj):
+        return obj.giver.get_full_name() if obj.giver else "-"
+    giver_name.short_description = "شخص تحویل‌دهنده"
+
+    def asset_name(self, obj):
+        return f"{obj.asset.name.name} - {obj.asset.brand.name}" if obj.asset else "-"
+    asset_name.short_description = "نام کالا"
+
+    def accesories_name(self, obj):
+        return obj.accesories.name if obj.accesories else "-"
+    accesories_name.short_description = "لوازم جانبی"
+
+    def location_name(self, obj):
+        return f"{obj.location.department} - اتاق {obj.location.room_number}" if obj.location else "-"
+    location_name.short_description = "موقعیت مکانی کالا"
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -243,8 +267,8 @@ class AssetTransactionAdmin(ModelAdminJalaliMixin, admin.ModelAdmin):
         """
         if obj:
             if obj.is_approved and not request.user.is_superuser:
-                return ("receiver", "giver", "asset", "accesories", "serial_number", "receive_date", "return_date", "description", "is_approved")  
-            elif not obj.is_approved:
+                return ("receiver", "giver", "asset", "accesories", "serial_number", "receive_date", "return_date", "description", "is_approved", "approval_status")  
+            elif not obj.is_approved and not request.user.is_superuser:
                 return ("receiver", "giver", "asset", "accesories", "serial_number", "receive_date", "return_date", "description", "approval_status")  # کاربران عادی فقط گزینه‌ی تأیید را ببینند
         return super().get_readonly_fields(request, obj)
     
@@ -270,6 +294,18 @@ class AssetAdmin(admin.ModelAdmin):
         if search_term:
             queryset |= self.model.objects.filter(name__name__icontains=search_term)  # جستجو در نام کالا
         return queryset, use_distinct
+    
+
+@admin.register(Rooms)
+class RoomsAdmin(admin.ModelAdmin):
+    list_display = ("department", "room_number")
+    list_filter = ("room_number",)
+
+
+@admin.register(Departments)
+class DepartmentsAdmin(admin.ModelAdmin):
+    list_display = ("name", "department_code")
+    list_filter = ("name", "department_code")
 
 # @admin.register(AssetTransactionHistory)
 # class AssetTransactionHistoryAdmin(ModelAdminJalaliMixin,  admin.ModelAdmin):

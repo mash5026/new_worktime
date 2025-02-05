@@ -45,4 +45,6 @@ def update_asset_transaction_receiver(sender, instance, created, **kwargs):
         # اگر رکورد جدید ایجاد شد، فیلد receiver در AssetTransaction را بروزرسانی می‌کنیم.
         asset_transaction = instance.asset_transaction
         asset_transaction.receiver = instance.receiver
+        asset_transaction.is_approved = False
+        asset_transaction.approval_status = 'تأیید نشده'
         asset_transaction.save(update_fields=['receiver'])
