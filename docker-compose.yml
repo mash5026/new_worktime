@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    restart: always
+    command: gunicorn --bind 0.0.0.0:8000 worktimeapp.wsgi:application
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+
+volumes:
+  static_volume:
+  media_volume:

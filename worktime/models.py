@@ -168,13 +168,13 @@ class WorkRecordDaily(models.Model):
     def get_weekday(self):
         """ دریافت نام روز هفته به فارسی """
         weekday_dict = {
-            0: "دوشنبه",
-            1: "سه‌شنبه",
-            2: "چهارشنبه",
-            3: "پنج‌شنبه",
-            4: "جمعه",
-            5: "شنبه",
-            6: "یک‌شنبه"
+            2: "دوشنبه",
+            3: "سه‌شنبه",
+            4: "چهارشنبه",
+            5: "پنج‌شنبه",
+            6: "جمعه",
+            0: "شنبه",
+            1: "یک‌شنبه"
         }
         return weekday_dict[self.date_work.weekday()]
     get_weekday.short_description = "روز هفته"
