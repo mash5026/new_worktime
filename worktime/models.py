@@ -17,7 +17,9 @@ ABSENT = 'A'
 PRESENT = 'P'
 OFF = 'O'
 MISSION = 'M'
-LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت')]
+SICKNESS = 'S'
+
+LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت'), (SICKNESS, 'استعلاجی')]
 
 class WorkRecord(models.Model):
     person = models.CharField(max_length=100)
