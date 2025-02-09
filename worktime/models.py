@@ -6,6 +6,7 @@ from django_jalali.db import models as jmodels
 from jalali_date import datetime2jalali, date2jalali
 import jdatetime
 from django.contrib.auth.models import User
+from persons.middleware import get_current_user
 
 def user_str(self):
     return f"{self.first_name} {self.last_name} ({self.username})"
@@ -125,10 +126,22 @@ class WorkRecordDaily(models.Model):
     arrived_time = models.TimeField(null=True, blank=True, verbose_name='ساعت ورود')
     departure_time = models.TimeField(null=True, blank=True, verbose_name='ساعت خروج')
     status = models.CharField(max_length=10, choices=LIST_ANSWER, default=PRESENT, verbose_name='وضعیت روزانه کارمند')
+    is_approved = models.BooleanField(default=False, verbose_name="تایید شده")
+    approval_status = models.TextField(blank=True, null=True, verbose_name="وضعیت تأیید")
 
-    # def save(self, *args, **kwargs):
-    #     self._calculate_status()
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+            """ اگر شخص ثبت‌کننده همان شخصی باشد که در فیلد person آمده است، به‌صورت خودکار تأیید شود. """
+            #if not self.pk:  # بررسی اینکه آیا رکورد جدید است
+                #request = kwargs.pop('request', None)  # دریافت درخواست کاربر از `save` در فرم
+            user = get_current_user()
+            print('user>>>>>>>', user)
+            if self.person == user:
+                self.is_approved = True  # تأیید خودکار اگر شخص ثبت‌کننده و `person` یکی باشند
+                self.approval_status = f"امروز توسط {self.person.get_full_name()} مورد تأیید قرار گرفته است."  # توضیح وضعیت تأیید شده
+            else:
+                self.is_approved = False
+                self.approval_status = f"وضعیت توسط کاربر مربوطه تایید نشده است."
+            super().save(*args, **kwargs)
 
 
     # def _calculate_status(self):

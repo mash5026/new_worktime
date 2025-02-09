@@ -15,12 +15,16 @@ class WorkRecordDailyForm(forms.ModelForm):
         request = kwargs.pop('request', None)  # دریافت درخواست برای بررسی کاربر
         super().__init__(*args, **kwargs)
         user = get_current_user()
+        instance = kwargs.get('instance', None)
         #print('user>>>', user)
         if user and not user.is_superuser:
-            # Get the associated User from Personnel
             personnel = Personnel.objects.filter(person=user).first()
-            if personnel:
-                self.fields['person'].queryset = User.objects.filter(id=personnel.person.id)
-            else:
-                self.fields['person'].queryset = User.objects.none()
+
+            if 'person' in self.fields:
+                if instance:  # اگر رکوردی در حال ویرایش باشد
+                    self.fields['person'].queryset = User.objects.filter(id=instance.person.id)
+                elif personnel and personnel.person:
+                    self.fields['person'].queryset = User.objects.filter(id=personnel.person.id)
+                else:
+                    self.fields['person'].queryset = User.objects.none()
             

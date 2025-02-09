@@ -127,7 +127,7 @@ from persons.signals import get_current_user
 
 @admin.register(WorkRecordDaily)
 class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status']
+    list_display = ['person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status', "is_approved", "approval_status"]
     list_filter = ('person',)
     search_fields = ('person',)
     form = WorkRecordDailyForm
@@ -150,3 +150,12 @@ class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.
         if request.user.is_superuser:
             return qs  # اگر کاربر ادمین باشد همه رکوردها را ببیند
         return qs.filter(person=request.user)
+    
+    def get_readonly_fields(self, request, obj=None):
+  
+        if obj:
+            if obj.is_approved and not request.user.is_superuser:
+                return ('person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status', "is_approved", "approval_status")  
+            elif not obj.is_approved and not request.user.is_superuser:
+                return ('person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status', "approval_status")  # کاربران عادی فقط گزینه‌ی تأیید را ببینند
+        return super().get_readonly_fields(request, obj)
