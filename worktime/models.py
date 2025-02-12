@@ -7,6 +7,7 @@ from jalali_date import datetime2jalali, date2jalali
 import jdatetime
 from django.contrib.auth.models import User
 from persons.middleware import get_current_user
+from django.core.exceptions import ValidationError
 
 def user_str(self):
     return f"{self.first_name} {self.last_name} ({self.username})"
@@ -16,11 +17,12 @@ User.add_to_class("__str__", user_str)
 # Assuming LIST_ANSWER and status choices are defined elsewhere as mentioned
 ABSENT = 'A'
 PRESENT = 'P'
-OFF = 'O'
+DOFF = 'DO'
+HOFF = 'HO'
 MISSION = 'M'
 SICKNESS = 'S'
 
-LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر'), (OFF, 'مرخصی'), (MISSION, 'ماموریت'), (SICKNESS, 'استعلاجی')]
+LIST_ANSWER = [(ABSENT, 'غایب'), (PRESENT, 'حاضر'), (DOFF, 'مرخصی روزانه'), (HOFF, 'مرخصی ساعتی'),(MISSION, 'ماموریت'), (SICKNESS, 'استعلاجی')]
 
 class WorkRecord(models.Model):
     person = models.CharField(max_length=100)
@@ -129,18 +131,36 @@ class WorkRecordDaily(models.Model):
     is_approved = models.BooleanField(default=False, verbose_name="تایید شده")
     approval_status = models.TextField(blank=True, null=True, verbose_name="وضعیت تأیید")
 
+    def clean(self):
+            """ بررسی تکراری نبودن وضعیت برای یک روز (به جز مرخصی ساعتی). """
+            if self.status != HOFF:  # اگر وضعیت مرخصی ساعتی نبود
+                existing_record = WorkRecordDaily.objects.filter(
+                    person=self.person,
+                    date_work=self.date_work,
+                    status=self.status
+                ).exclude(pk=self.pk)  # بررسی رکوردهای دیگر (به جز همین رکورد در صورت ویرایش)
+                
+                if existing_record.exists():
+                    raise ValidationError(f"وضعیت '{dict(LIST_ANSWER)[self.status]}' برای این تاریخ قبلاً ثبت شده است.")
+
     def save(self, *args, **kwargs):
             """ اگر شخص ثبت‌کننده همان شخصی باشد که در فیلد person آمده است، به‌صورت خودکار تأیید شود. """
             #if not self.pk:  # بررسی اینکه آیا رکورد جدید است
                 #request = kwargs.pop('request', None)  # دریافت درخواست کاربر از `save` در فرم
             user = get_current_user()
             print('user>>>>>>>', user)
-            if self.person == user:
+            if self.person == user and  self.departure_time is not None:
                 self.is_approved = True  # تأیید خودکار اگر شخص ثبت‌کننده و `person` یکی باشند
                 self.approval_status = f"امروز توسط {self.person.get_full_name()} مورد تأیید قرار گرفته است."  # توضیح وضعیت تأیید شده
             else:
                 self.is_approved = False
                 self.approval_status = f"وضعیت توسط کاربر مربوطه تایید نشده است."
+
+            if self.status == DOFF and self.person == user:
+                self.arrived_time = None
+                self.departure_time = None
+                self.is_approved = True
+                self.approval_status = f" کاربر {self.person.get_full_name()} مرخصی روزانه بوده است."
             super().save(*args, **kwargs)
 
 

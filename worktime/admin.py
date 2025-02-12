@@ -157,5 +157,5 @@ class WorkRecordDailyAdmin(ModelAdminJalaliMixin, ImportExportModelAdmin, admin.
             if obj.is_approved and not request.user.is_superuser:
                 return ('person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status', "is_approved", "approval_status")  
             elif not obj.is_approved and not request.user.is_superuser:
-                return ('person', 'date_work', 'get_weekday', 'arrived_time', 'departure_time', 'status', "approval_status")  # کاربران عادی فقط گزینه‌ی تأیید را ببینند
+                return ('person', 'date_work', 'get_weekday', 'arrived_time', 'status', "approval_status")  # کاربران عادی فقط گزینه‌ی تأیید را ببینند
         return super().get_readonly_fields(request, obj)
