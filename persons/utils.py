@@ -52,3 +52,19 @@ def is_valid_iranian_mobile(number):
             return True, f"شماره معتبر است و متعلق به اپراتور {operator}."
 
     return False, "پیش‌شماره نامعتبر است."
+
+def validate_iranian_cardnumber(iranian_cardnumber):
+    # Step 1: Check if the length of the card number is 10 digits
+    if len(iranian_cardnumber) != 16 or not iranian_cardnumber.isdigit():
+        return False
+    
+    # Step 2: Check if the first digit is a valid card type
+    digits = [int(x) for x in iranian_cardnumber][::-1]
+    total = 0
+    for i, d in enumerate(digits):
+        if i % 2 == 1:
+            d *= 2
+            if d > 9:
+                d -= 9
+        total += d
+    return total % 10 == 0

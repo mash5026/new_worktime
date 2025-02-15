@@ -8,6 +8,13 @@ from jalali_date.admin import ModelAdminJalaliMixin
 from import_export.admin import ImportExportModelAdmin
 from .forms import EducationalDocumentForm, TrainingCertificateForm, InsuranceRecordsForm, EmploymentHistoryForm
 from .resources import AssetTransactionResource
+from django.utils.translation import gettext_lazy as _
+
+
+@admin.action(description="تایید انتخاب‌شده‌ها")
+def approve_records(modeladmin, request, queryset):
+    updated_count = queryset.update(is_approved=True)
+    modeladmin.message_user(request, f"{updated_count} رکورد با موفقیت تأیید شد.")
 
 admin.site.index_title = "به سامانه راهبری مدیریت سرمایه انسانی خوش آمدید" 
 
@@ -64,7 +71,7 @@ class PersonnelAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, IranianCitie
     inlines = [TypeDocRecordsInline, EducationalDocumentInline, TrainingCertificateInline, InsuranceRecordsInline, EmploymentHistoryInline]
     readonly_fields = ('created_at', 'created_by', 'updated_at', 'updated_by', 'first_name', 'last_name')
     class Media:
-        js = ('nationalid_check.js', 'check_mobile.js',)
+        js = ('nationalid_check.js', 'check_mobile.js', 'cardnumber.js')
 
     fieldsets = [
         ('اطلاعات فردی', {
@@ -222,6 +229,7 @@ class AssetTransactionAdmin(ImportExportModelAdmin, ModelAdminJalaliMixin, admin
     list_filter = ("receive_date", "return_date", "receiver")
     inlines = [AssetTransactionHistoryInline]
     list_per_page = 20
+    actions = [approve_records]
 
     def receiver_name(self, obj):
         return obj.receiver.get_full_name() if obj.receiver else "-"

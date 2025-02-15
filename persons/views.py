@@ -3,7 +3,7 @@ from .utils import IsnationalCode
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from .models import Personnel
-from .utils import is_valid_iranian_mobile
+from .utils import is_valid_iranian_mobile, validate_iranian_cardnumber
 
 # Create your views here.
 
@@ -29,3 +29,13 @@ def validate_mobile(request, mobile):
 def check_mobile_exists(request, mobile):
     exists = Personnel.objects.filter(callphone=mobile).exists()
     return JsonResponse({'exists': exists})
+
+
+def validate_cardnumber(request, cardNumber):
+    # Check if the national ID is valid using the IsnationalCode function
+    try:
+        if not validate_iranian_cardnumber(cardNumber):
+            return JsonResponse({'valid': False})
+        return JsonResponse({'valid': True})
+    except ValidationError:
+        return JsonResponse({'valid': False})
