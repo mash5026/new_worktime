@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import AssetTransactionHistory, Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords, AssetTransaction, Asset, Brand, NameAsset, Rooms, Departments, Departments
+from .models import CustomTable, CustomTableField, AssetTransactionHistory, Personnel, EducationalDocument, TrainingCertificate, InsuranceRecords, EmploymentHistory, TypeDocRecords, AssetTransaction, Asset, Brand, NameAsset, Rooms, Departments, Departments
 from jalali_date.admin import ModelAdminJalaliMixin
 from jalali_date.widgets import AdminJalaliDateWidget
 from iranian_cities.admin import IranianCitiesAdmin
@@ -325,3 +325,12 @@ class DepartmentsAdmin(admin.ModelAdmin):
 #         if db_field.name == 'receive_date':
 #             kwargs['widget'] = AdminJalaliDateWidget()
 #         return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+class CustomTableFieldInline(admin.TabularInline):
+    model = CustomTableField
+    extra = 1  # حداقل یک فیلد نمایش داده شود
+
+class CustomTableAdmin(admin.ModelAdmin):
+    inlines = [CustomTableFieldInline]
+
+admin.site.register(CustomTable, CustomTableAdmin)

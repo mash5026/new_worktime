@@ -1,8 +1,10 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, pre_delete
 from django.dispatch import receiver
 from threading import local
-from .models import TimeStampedModel
+from .models import TimeStampedModel, CustomTable
 from .models import AssetTransactionHistory
+from .utils import database_table_exists
+from django.db import connection
 
 
 _user = local()
@@ -48,3 +50,18 @@ def update_asset_transaction_receiver(sender, instance, created, **kwargs):
         asset_transaction.is_approved = False
         asset_transaction.approval_status = 'تأیید نشده'
         asset_transaction.save(update_fields=['receiver'])
+
+
+@receiver(pre_delete, sender=CustomTable)
+def delete_table_from_db(sender, instance, **kwargs):
+    """ قبل از حذف مدل، جدول مرتبط را از دیتابیس حذف می‌کند """
+    table_name = instance.table_name
+    if database_table_exists(table_name):
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute(f'DROP TABLE "{table_name}"')  # حذف جدول
+                print(f'Table "{table_name}" dropped successfully!')
+            except Exception as e:
+                print(f"Error dropping table {table_name}: {e}")  # ثبت خطا در لاگ
+    else:
+        print(f'Table "{table_name}" does not exist.')

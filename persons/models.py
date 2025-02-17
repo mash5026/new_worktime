@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection
 from django_jalali.db import models as jmodels
 from django.contrib.auth.models import User
 from iranian_cities.fields import CityField
@@ -6,6 +6,15 @@ from persons.middleware import get_current_user
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
+from .utils import create_table, add_missing_columns, database_table_exists
+
+FIELD_TYPE_CHOICES = [
+    ('VARCHAR(255)', 'متن (VARCHAR)'),
+    ('INTEGER', 'عدد صحیح (INTEGER)'),
+    ('FLOAT', 'عدد اعشاری (FLOAT)'),
+    ('BOOLEAN', 'منطقی (BOOLEAN)'),
+    ('TIMESTAMP', 'تاریخ و زمان (TIMESTAMP)'),
+]
 
 User = get_user_model()
 
@@ -541,3 +550,35 @@ class AssetTransactionHistory(models.Model):
             self.asset_transaction.return_date = self.receive_date
             self.asset_transaction.save()
         super().save(*args, **kwargs)
+
+
+# لیست انواع داده‌های قابل انتخاب
+
+
+class CustomTable(models.Model):
+    table_name = models.CharField(max_length=255, unique=True, verbose_name='نام جدول')
+
+    class Meta:
+        verbose_name = "جدول"
+        verbose_name_plural = "جداول"
+
+    def __str__(self):
+        return self.table_name
+
+class CustomTableField(models.Model):
+    table = models.ForeignKey(CustomTable, on_delete=models.CASCADE, related_name="fields")
+    name = models.CharField(max_length=255, verbose_name="نام ستون")
+    type = models.CharField(max_length=50, choices=FIELD_TYPE_CHOICES, verbose_name="نوع داده")
+
+    def __str__(self):
+        return f"{self.name} ({self.type})"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        table_name = self.table.table_name
+
+        if database_table_exists(table_name):
+            add_missing_columns(table_name, [self])  # اگر جدول وجود دارد، فقط ستون‌های جدید اضافه کن
+        else:
+            create_table(table_name, self.table.fields.all())  # اگر جدول وجود ندارد، آن را بساز

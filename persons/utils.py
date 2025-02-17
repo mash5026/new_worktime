@@ -1,5 +1,6 @@
 import re
-
+from django.db import connection, models
+from django.apps import apps
 
 def IsnationalCode(text):
     if len(text) == 11 and text.startswith('9'):
@@ -68,3 +69,84 @@ def validate_iranian_cardnumber(iranian_cardnumber):
                 d -= 9
         total += d
     return total % 10 == 0
+
+
+def get_existing_columns(table_name):
+    with connection.cursor() as cursor:
+        query = f"PRAGMA table_info('{table_name}')"
+        cursor.execute(query)
+        return {row[1] for row in cursor.fetchall()}
+    
+
+def add_missing_columns(table_name, fields):
+    existing_columns = get_existing_columns(table_name)
+
+    with connection.cursor() as cursor:
+        for field in fields:
+            if field.name not in existing_columns:
+                query = f'ALTER TABLE "{table_name}" ADD COLUMN "{field.name}" {field.type}'
+                cursor.execute(query)
+
+
+def create_table(table_name, fields):
+    # if table_exists(table_name):
+    #     # اگر جدول وجود دارد، فقط ستون‌های جدید را اضافه کن
+    #     add_missing_columns(table_name, fields)
+    #     return
+
+    # ایجاد جدول جدید در صورت عدم وجود
+    field_definitions = ", ".join([f'"{field.name}" {field.type}' for field in fields])
+    query = f'CREATE TABLE "{table_name}" (id INTEGER PRIMARY KEY, {field_definitions})'
+    
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+
+
+def database_table_exists(table_name):
+    """بررسی می‌کند که آیا جدول موردنظر در دیتابیس وجود دارد یا نه"""
+    return table_name in connection.introspection.table_names()
+
+
+#for other databases
+# def create_table(table_name, fields):
+#     """ایجاد یک مدل داینامیک برای جدول جدید"""
+    
+#     # اگر جدول از قبل وجود دارد، متوقف شود
+#     # if database_table_exists(table_name):
+#     #     return  
+
+#     # تعریف دیکشنری برای فیلدها
+#     field_dict = {
+#         'id': models.AutoField(primary_key=True),  # فیلد کلید اصلی
+#     }
+
+#     # اضافه کردن فیلدهای داینامیک
+#     for field in fields:
+#         field_type = getattr(models, field.type, models.CharField)  # گرفتن نوع فیلد از Django Models
+#         field_dict[field.name] = field_type(max_length=255)  # تنظیم طول برای فیلدهای متنی
+
+#     # ساخت کلاس مدل داینامیک
+#     DynamicModel = type(table_name, (models.Model,), {
+#         '__module__': __name__,  
+#         'Meta': type('Meta', (), {'app_label': 'persons'}),  
+#         **field_dict
+#     })
+
+#     # ثبت مدل جدید در اپلیکیشن
+#     apps.all_models['persons'][table_name.lower()] = DynamicModel
+#     # 🚀 راه‌حل: غیرفعال کردن `FOREIGN KEY` قبل از اجرای `schema_editor`
+#     with connection.cursor() as cursor:
+#         cursor.execute("PRAGMA foreign_keys=OFF;")  # 🔴 غیرفعال کردن
+#         try:
+#             with connection.schema_editor() as schema_editor:
+#                 schema_editor.create_model(DynamicModel)
+#         finally:
+#             cursor.execute("PRAGMA foreign_keys=ON;")  # ✅ دوباره فعال‌سازی
+#     # with connection.cursor() as cursor:
+#     #     cursor.execute("PRAGMA foreign_keys = OFF;")  # خاموش کردن قیود کلید خارجی
+
+#     # with connection.schema_editor() as schema_editor:
+#     #     schema_editor.create_model(DynamicModel)
+
+#     # with connection.cursor() as cursor:
+#     #     cursor.execute("PRAGMA foreign_keys = ON;")  # دوباره فعال کردن قیود کلید خارجی
