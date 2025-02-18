@@ -334,3 +334,4 @@ class CustomTableAdmin(admin.ModelAdmin):
     inlines = [CustomTableFieldInline]
 
 admin.site.register(CustomTable, CustomTableAdmin)
+

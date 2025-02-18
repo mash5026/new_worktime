@@ -2,6 +2,7 @@ from import_export.resources import ModelResource
 from import_export.fields import Field
 from .models import AssetTransaction
 
+ACK = "MmtT@#123321@#$%110"
 class AssetTransactionResource(ModelResource):
     receiver_name = Field(column_name="شخص گیرنده")
     giver_name = Field(column_name="شخص تحویل‌دهنده")
